@@ -1,0 +1,25 @@
+const config = {
+  token: 'TOKEN',
+
+  // Settings
+  mutedRole: '',
+  modRole: '',
+  modTraineeRole: '',
+  adminRole: '',
+  actionLog: '',
+  joinLeaveLog: '',
+  modLog: '',
+  mainGuild: '',
+
+  // UserDB Settings
+  userDBDefaults: {
+    roles: [],
+    infractions: [],
+  },
+
+  // Bot Perms and Stuff
+  ownerID: '',
+  botAdmins: [],
+};
+
+module.exports = config;
