@@ -1,10 +1,14 @@
 const { Util } = require('discord.js');
 
 module.exports = (client) => {
-  client.sendLongMessage = (channel, message, options = {}) => {
+  client.sendLongMessage = (interaction, message) => {
     const splitMsg = Util.splitMessage(message);
-    client.asyncForEach(splitMsg, async (msgToSend) => {
-      await channel.send(msgToSend, options);
+    client.asyncForEach(splitMsg, async (msgToSend, index) => {
+      if (index === 0) {
+        await interaction.reply(msgToSend);
+      } else {
+        await interaction.followUp(msgToSend);
+      }
     });
   };
 };

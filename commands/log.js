@@ -64,8 +64,7 @@ module.exports.run = async (client, interaction) => {
   }
 
   if (curMsg || expMsg) {
-    client.sendLongMessage(interaction.channel, msg);
-    interaction.reply('Log is displayed below.');
+    client.sendLongMessage(interaction, msg);
   } else {
     // No infractions
     client.error(interaction, 'No Heart Damage Found!', `**${member.user.tag}** hasn't been inflicted with any damage! They have **3 hearts**!`);

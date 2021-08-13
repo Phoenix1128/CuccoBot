@@ -73,10 +73,15 @@ module.exports.run = async (client, interaction) => {
   const member = interaction.options.getMember('member', true);
 
   if (!member) {
-    return interaction.reply({ content: `${client.emoji.redX} **Invalid Member!**\nPlease mention a valid member of this server!`, ephemeral: true });
+    return client.error(interaction, 'Invalid Member!', 'Please mention a valid member of this server!', true);
   }
 
   const newDamage = interaction.options.getNumber('amount', true);
+
+  if (!newDamage) {
+    return client.error(interaction, 'Invalid Damage Amount!', 'Please enter a valid amount of damage to inflict!', true);
+  }
+
   const reason = interaction.options.getString('reason', true);
 
   let curDamage = 0;

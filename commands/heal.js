@@ -50,7 +50,7 @@ module.exports.run = async (client, interaction) => {
   const num = interaction.options.getInteger('case').toString();
 
   if (!client.infractionDB.has(num)) {
-    return client.error(interaction, 'Invalid Case Number!', 'Please provide a valid case number to heal!');
+    return client.error(interaction, 'Invalid Case Number!', 'Please provide a valid case number to heal!', true);
   }
 
   // Med the case
