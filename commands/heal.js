@@ -36,27 +36,21 @@ module.exports.conf = {
 };
 
 module.exports.run = async (client, interaction) => {
-  const healCase = (caseNum) => {
-    const userID = client.infractionDB.get(caseNum);
-    // Remove the caseNum => userID entry in infractionDB
-    client.infractionDB.delete(caseNum);
-    // Remove the infraction from the user
-    const infs = client.userDB.get(userID, 'infractions');
-    const infRemoved = infs.filter((inf) => inf.case == caseNum)[0];
-    client.userDB.set(userID, infs.filter((inf) => inf.case != caseNum), 'infractions');
-    return { infRemoved, userID };
-  };
+  const caseNum = interaction.options.getInteger('case', true).toString();
 
-  const num = interaction.options.getInteger('case').toString();
-
-  if (!client.infractionDB.has(num)) {
+  if (!client.infractionDB.has(caseNum)) {
     return client.error(interaction, 'Invalid Case Number!', 'Please provide a valid case number to heal!', true);
   }
 
-  // Med the case
-  const meddedCase = healCase(num);
+  const userID = client.infractionDB.get(caseNum);
+  // Remove the caseNum => userID entry in infractionDB
+  client.infractionDB.delete(caseNum);
+  // Remove the infraction from the user
+  const infs = client.userDB.get(userID, 'infractions');
+  const infRemoved = infs.filter((inf) => inf.case == caseNum)[0];
+  client.userDB.set(userID, infs.filter((inf) => inf.case != caseNum), 'infractions');
 
   // Notify that the infraction was removed
-  const user = await client.users.fetch(meddedCase.userID);
-  return client.success(interaction, 'Damage Healed!', `**${user.tag}** was healed of **${meddedCase.infRemoved.damage} heart damage** from case number **${num}**!`);
+  const user = await client.users.fetch(userID);
+  return client.success(interaction, 'Damage Healed!', `**${user.tag}** was healed of **${infRemoved.damage} heart damage** from case number **${caseNum}**!`);
 };
