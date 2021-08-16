@@ -6,11 +6,17 @@ module.exports = async (client) => {
   }
 
   const slashCommandsArr = client.slashCommands.keyArray();
-  client.asyncForEach(slashCommandsArr, async (command) => {
+  client.asyncForEach(slashCommandsArr, async (command, i) => {
     const cmd = client.slashCommands.get(command);
-    console.log(`Loading command: ${cmd.data.name}`);
-    const slashCommand = await mainGuild.commands.create(cmd.data);
-    await slashCommand.permissions.add(cmd.conf);
+    mainGuild.commands.create(cmd.data)
+      .then(async (slashCommand) => {
+        console.log(`Loading command: ${slashCommand.name}`);
+        await slashCommand.permissions.add(cmd.conf);
+
+        if (i === slashCommandsArr.length - 1) {
+          console.log('Loaded all commands!');
+        }
+      }).catch(console.error);
   });
 
   setInterval(() => {
