@@ -1,11 +1,14 @@
-const { checkMark } = require('../emoji');
-
 module.exports = (client) => {
-  client.success = (interaction, suc, msg, ephemeral = false) => {
+  client.success = async (interaction, suc, msg, followUp = false, ephemeral = false) => {
+    const options = { content: `${client.emoji.checkMark} **${suc}**\n${msg}`, ephemeral };
     if (interaction.replied) {
-      interaction.editReply({ content: `${checkMark} **${suc}**\n${msg}`, ephemeral });
+      if (followUp) {
+        await interaction.followUp(options);
+      } else {
+        await interaction.editReply(options);
+      }
     } else {
-      interaction.reply({ content: `${checkMark} **${suc}**\n${msg}`, ephemeral });
+      await interaction.reply(options);
     }
   };
 };

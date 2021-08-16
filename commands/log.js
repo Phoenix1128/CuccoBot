@@ -45,12 +45,13 @@ module.exports.run = async (client, interaction) => {
 
   infractions.forEach((i) => {
     const moderator = client.users.cache.get(i.moderator);
+    const caseStr = `\n• Case ${i.case} - ${moderator ? `Mod: ${moderator.tag}` : `Unknown Mod ID: ${i.moderator || 'No ID Stored'}`} - **${i.damage} heart damage** (<t:${Math.floor(new Date(i.date).getTime() / 1000)}>)\n> Reason: ${i.reason}`;
     if (client.checkValidDamage(i)) {
       curDamage += i.damage;
-      curMsg += `\n• Case ${i.case} - ${moderator ? `Mod: ${moderator.tag}` : `Unknown Mod ID: ${i.moderator || 'No ID Stored'}`} - **${i.damage} heart damage** (<t:${Math.floor(new Date(i.date).getTime() / 1000)}>)\n> Reason: ${i.reason}`;
+      curMsg += caseStr;
     } else {
       expDamage += i.damage;
-      expMsg += `\n• Case ${i.case} - ${moderator ? `Mod: ${moderator.tag}` : `Unknown Mod ID: ${i.moderator || 'No ID Stored'}`} - (<t:${Math.floor(new Date(i.date).getTime() / 1000)}>) ${i.points} bee sting${i.points === 1 ? '' : 's'}\n> Reason: ${i.reason}`;
+      expMsg += caseStr;
     }
   });
 

@@ -1,11 +1,14 @@
-const { redX } = require('../emoji');
-
 module.exports = (client) => {
-  client.error = (interaction, err, msg, ephemeral = false) => {
+  client.error = async (interaction, err, msg, followUp = false, ephemeral = false) => {
+    const options = { content: `${client.emoji.redX} **${err}**\n${msg}`, ephemeral };
     if (interaction.replied) {
-      interaction.editReply({ content: `${redX} **${err}**\n${msg}`, ephemeral });
+      if (followUp) {
+        await interaction.followUp(options);
+      } else {
+        await interaction.editReply(options);
+      }
     } else {
-      interaction.reply({ content: `${redX} **${err}**\n${msg}`, ephemeral });
+      await interaction.reply(options);
     }
   };
 };
