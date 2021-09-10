@@ -137,6 +137,14 @@ For more information about your mute, please read #rules (<#431541621893627914>)
     action = '20 Minute Mute';
     mute = 20;
   } else {
+    if (client.userDB.get(member.id).infractions.length === 0) {
+      dmMsg = `Hey, I'm CuccoBot and I'm just flying in to let you know you broke a server rule.
+
+**${reason}**
+
+Please don't break the rulesd as each time you do, it hurts me. If you hurt me again, next time I might not be so nice. Take a look at the #rules (<#431541621893627914>) to see what hurts me!`;
+      action = 'Soft Warn';
+    } else {
     // Give warning
     dmMsg = `You have been warned in the r/Zelda server for the following reason:
 **${reason}**
@@ -144,6 +152,7 @@ You have lost **${newDamage} heart${newDamage === 1 ? '' : 's'}**. You now have 
 Don't worry, 1/4 heart damage is just a warning and will expire in **1 week**.
 For more information about your warn, please read #rules (<#431541621893627914>).`;
     action = 'Warn';
+    }
   }
 
   let dmSent = false;
