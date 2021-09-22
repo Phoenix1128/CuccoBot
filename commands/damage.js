@@ -71,8 +71,57 @@ module.exports.conf = {
 
 module.exports.run = async (client, interaction) => {
   const member = interaction.options.getMember('member', true);
-  const newDamage = interaction.options.getNumber('amount', true);
+  let newDamage = interaction.options.getNumber('amount', true);
   const reason = interaction.options.getString('reason', true);
+
+  const heartLog = client.createHeartLog(member);
+
+  if (heartLog) {
+    const actionRow = new Discord.MessageActionRow()
+      .addComponents([
+        new Discord.MessageButton()
+          .setLabel('0 Heart Damage')
+          .setCustomId('0')
+          .setStyle('SECONDARY'),
+        new Discord.MessageButton()
+          .setLabel('1/4 Heart Damage')
+          .setCustomId('0.25')
+          .setStyle(newDamage === 0.25 ? 'PRIMARY' : 'SECONDARY'),
+        new Discord.MessageButton()
+          .setLabel('1/2 Heart Damage')
+          .setCustomId('0.5')
+          .setStyle(newDamage === 0.5 ? 'PRIMARY' : 'SECONDARY'),
+        new Discord.MessageButton()
+          .setLabel('1 Heart Damage')
+          .setCustomId('1')
+          .setStyle(newDamage === 1 ? 'PRIMARY' : 'SECONDARY'),
+        new Discord.MessageButton()
+          .setLabel('3 Heart Damage')
+          .setCustomId('3')
+          .setStyle('DANGER'),
+      ]);
+    const confirmationMsg = await interaction.reply({
+      content: Discord.Util.splitMessage(`Before I inflict **${newDamage} damage**, **${member.user.tag}** has previous history. Please review their logs and adjust their damage if necessary.
+
+${heartLog}
+        
+What damage should I inflict?`).join(' '),
+      components: [actionRow],
+      fetchReply: true,
+    });
+
+    const filter = (i) => {
+      i.deferUpdate();
+      return i.user.id === interaction.user.id;
+    };
+
+    try {
+      const buttonSelected = await confirmationMsg.awaitMessageComponent({ filter, componentType: 'BUTTON', time: 1200000 });
+      newDamage = parseFloat(buttonSelected.customId);
+    } catch (err) {
+      return client.error(interaction, 'Time Expired!', err); // TODO: FINISH ERROR
+    }
+  }
 
   let curDamage = 0;
   const time = Date.now();
@@ -136,15 +185,13 @@ You have lost **${newDamage} heart${newDamage === 1 ? '' : 's'}**. You now have 
 For more information about your mute, please read #rules (<#431541621893627914>) and #muted (<#872554270036226098>).`;
     action = '20 Minute Mute';
     mute = 20;
-  } else {
-    if (client.userDB.get(member.id).infractions.length === 0) {
-      dmMsg = `Hey, I'm CuccoBot and I'm just flying in to let you know you broke a server rule.
-
+  } else if (client.userDB.get(member.id).infractions.length === 0) {
+    dmMsg = `Hey, I'm CuccoBot and I'm just flying in to let you know you broke a server rule.
 **${reason}**
-
-Please don't break the rulesd as each time you do, it hurts me. If you hurt me again, next time I might not be so nice. Take a look at the #rules (<#431541621893627914>) to see what hurts me!`;
-      action = 'Soft Warn';
-    } else {
+Please don't break the rules as each time you do, it hurts me. If you hurt me again, next time I might not be so nice. Take a look at the #rules (<#431541621893627914>) to see what hurts me!`;
+    action = 'Soft Warn';
+    newDamage = 0;
+  } else {
     // Give warning
     dmMsg = `You have been warned in the r/Zelda server for the following reason:
 **${reason}**
@@ -152,11 +199,10 @@ You have lost **${newDamage} heart${newDamage === 1 ? '' : 's'}**. You now have 
 Don't worry, 1/4 heart damage is just a warning and will expire in **1 week**.
 For more information about your warn, please read #rules (<#431541621893627914>).`;
     action = 'Warn';
-    }
   }
 
   let dmSent = false;
-  if (newDamage > 0) {
+  if (action === 'Soft Warn' || newDamage > 0) {
     // Try to send DM
     try {
       const dmChannel = await member.createDM();
@@ -218,7 +264,7 @@ For more information about your warn, please read #rules (<#431541621893627914>)
 
   // Send mod-log embed
   const embed = new Discord.MessageEmbed()
-    .setAuthor(`Case ${caseNum} | ${action} | ${member.guild ? member.user.tag : member.tag || member}`, member.guild ? member.user.displayAvatarURL() : member.displayAvatarURL())
+    .setAuthor(`Case ${caseNum} | ${action} | ${member.guild ? member.user.tag : member.tag || member}`, member.user.displayAvatarURL())
     .setColor((mute || ban) ? '#ff9292' : '#fada5e')
     .setDescription(`Reason: ${reason}`)
     .addField('User', `<@${member.id}>`, true)
